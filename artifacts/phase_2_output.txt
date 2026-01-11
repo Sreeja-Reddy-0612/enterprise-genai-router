@@ -1,0 +1,61 @@
+PHASE 2 – POLICY ENGINE VALIDATION OUTPUT
+========================================
+
+Command executed:
+python app/app.py
+
+----------------------------------------
+Contract Validation (Phase 1 Reuse):
+----------------------------------------
+Task(
+  user_input='Summarize internal compliance document',
+  task_type='compliance',
+  risk_level='high',
+  sensitivity='confidential',
+  budget=0.05
+)
+
+PolicyDecision(
+  selected_model='claude',
+  reason='Compliance-sensitive task',
+  estimated_cost=0.02,
+  safety_actions=['redaction'],
+  fallback_chain=['openai']
+)
+
+ModelResponse(
+  content='Summary text',
+  model_used='claude',
+  tokens_used=320,
+  cost=0.018,
+  policy_trace={'rule': 'compliance_first'}
+)
+
+----------------------------------------
+Policy Engine Evaluation:
+----------------------------------------
+Input Task:
+Task(
+  user_input='Review internal compliance document',
+  task_type='compliance',
+  risk_level='high',
+  sensitivity='public',
+  budget=0.05
+)
+
+Policy Decision:
+PolicyDecision(
+  selected_model='claude',
+  reason='Compliance-sensitive task requires safety-first model',
+  estimated_cost=0.02,
+  safety_actions=['constitutional_ai'],
+  fallback_chain=['openai']
+)
+
+----------------------------------------
+Result:
+----------------------------------------
+Policy engine correctly selected Claude
+based on task type and enterprise rules.
+
+Phase 2 completed successfully.
