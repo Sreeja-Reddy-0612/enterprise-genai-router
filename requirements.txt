@@ -1,0 +1,7 @@
+# Phase 1–3 core
+python-dotenv
+
+# Phase 4+ (future)
+fastapi
+uvicorn
+requests

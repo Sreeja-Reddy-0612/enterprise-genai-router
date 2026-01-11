@@ -1,0 +1,29 @@
+PHASE 3 – MODEL ROUTER EXECUTION OUTPUT
+======================================
+
+Command executed:
+python app/app.py
+
+----------------------------------------
+Policy Decision:
+----------------------------------------
+selected_model: claude
+reason: Compliance-sensitive task requires safety-first model
+
+----------------------------------------
+Model Execution:
+----------------------------------------
+model_used: claude
+tokens_used: 450
+cost: 0.02
+
+----------------------------------------
+Final Response:
+----------------------------------------
+Claude response for: Summarize internal compliance document
+
+----------------------------------------
+Result:
+----------------------------------------
+End-to-end execution completed successfully
+using policy-driven model routing.
