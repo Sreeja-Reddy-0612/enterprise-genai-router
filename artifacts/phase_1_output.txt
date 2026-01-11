@@ -1,0 +1,50 @@
+PHASE 1 – CORE CONTRACT VALIDATION OUTPUT
+========================================
+
+Command executed:
+python app/main.py
+
+Purpose:
+Validate core system contracts (Task, PolicyDecision, ModelResponse)
+before implementing policy or routing logic.
+
+----------------------------------------
+Task Object Created:
+----------------------------------------
+Task(
+  user_input='Summarize internal compliance document',
+  task_type='compliance',
+  risk_level='high',
+  sensitivity='confidential',
+  budget=0.05
+)
+
+----------------------------------------
+Policy Decision Object Created:
+----------------------------------------
+PolicyDecision(
+  selected_model='claude',
+  reason='Compliance-sensitive task',
+  estimated_cost=0.02,
+  safety_actions=['redaction'],
+  fallback_chain=['openai']
+)
+
+----------------------------------------
+Model Response Object Created:
+----------------------------------------
+ModelResponse(
+  content='Summary text',
+  model_used='claude',
+  tokens_used=320,
+  cost=0.018,
+  policy_trace={'rule': 'compliance_first'}
+)
+
+----------------------------------------
+Result:
+----------------------------------------
+All core contracts instantiated successfully.
+No import errors, type errors, or schema mismatches.
+
+Phase 1 completed successfully.
