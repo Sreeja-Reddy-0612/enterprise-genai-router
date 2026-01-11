@@ -5,3 +5,10 @@ python-dotenv
 fastapi
 uvicorn
 requests
+
+openai
+anthropic
+google-generativeai
+requests
+python-dotenv
+tenacity

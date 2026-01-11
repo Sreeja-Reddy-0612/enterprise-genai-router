@@ -38,7 +38,26 @@ def full_execution_test():
     print("\n🚀 Final Model Response:")
     print(response)
 
+def phase_5_test():
+    tasks = [
+        Task("Check legal compliance of this policy", "compliance", "high", "public"),
+        Task("Explain this architecture diagram", "multimodal", "medium", "public"),
+        Task("Summarize internal HR doc", "summarize", "high", "confidential"),
+    ]
+
+    policy = PolicyEngine()
+    router = ModelRouter()
+
+    for t in tasks:
+        d = policy.evaluate(t)
+        r = router.execute(t, d)
+        print("\n---")
+        print("Task:", t.task_type)
+        print("Model:", r.model_used)
+        print("Output:", r.content[:120])
+
 if __name__ == "__main__":
     sanity_check()
     policy_test()
     full_execution_test()
+    phase_5_test()
