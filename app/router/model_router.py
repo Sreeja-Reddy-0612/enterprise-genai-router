@@ -6,6 +6,8 @@ from models.openai_model import OpenAIModel
 from models.gemini_model import GeminiModel
 from models.claude_model import ClaudeModel
 from models.mistral_model import MistralModel
+from utils.logger import logger
+
 
 class ModelRouter:
     """
@@ -19,20 +21,30 @@ class ModelRouter:
             "claude": ClaudeModel(),
             "mistral": MistralModel()
         }
+    
 
-    def execute(self, task: Task, decision: PolicyDecision) -> ModelResponse:
-        model_name = decision.selected_model
+    def execute(self, task, decision):
+        attempted = []
 
-        if model_name not in self.models:
-            raise ValueError(f"Unsupported model: {model_name}")
+        models_to_try = [decision.selected_model] + decision.fallback_chain
 
-        response = self.models[model_name].generate(task)
+        for model_name in models_to_try:
+            try:
+                logger.info(f"Attempting model: {model_name}")
+                model = self.models[model_name]
+                response = model.generate(task)
 
-        # Attach policy trace for explainability
-        response.policy_trace = {
-            "selected_model": decision.selected_model,
-            "reason": decision.reason,
-            "fallback_chain": decision.fallback_chain
-        }
+                response.policy_trace = {
+                    "attempted_models": attempted + [model_name],
+                    "final_model": model_name,
+                    "reason": decision.reason
+                }
 
-        return response
+                return response
+
+            except Exception as e:
+                logger.error(f"Model {model_name} failed: {str(e)}")
+                attempted.append(model_name)
+
+        raise RuntimeError("All model attempts failed")
+    
