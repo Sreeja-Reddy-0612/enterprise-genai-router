@@ -1,10 +1,10 @@
 import google.generativeai as genai
-from models.base import BaseModel
-from core.task import Task
-from core.response import ModelResponse
-from utils.retry import retry_on_failure
-from utils.logger import logger
-from config.settings import GEMINI_API_KEY
+from app.models.base import BaseModel
+from app.core.task import Task
+from app.core.response import ModelResponse
+from app.utils.retry import retry_on_failure
+from app.utils.logger import logger
+from app.config.settings import GEMINI_API_KEY
 
 genai.configure(api_key=GEMINI_API_KEY)
 

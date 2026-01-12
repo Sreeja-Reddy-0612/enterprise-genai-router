@@ -1,5 +1,5 @@
-from core.task import Task
-from core.decision import PolicyDecision
+from app.core.task import Task
+from app.core.decision import PolicyDecision
 
 class PolicyEngine:
     """

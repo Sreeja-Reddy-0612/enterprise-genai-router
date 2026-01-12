@@ -1,10 +1,10 @@
 from anthropic import Anthropic
-from models.base import BaseModel
-from core.task import Task
-from core.response import ModelResponse
-from utils.retry import retry_on_failure
-from utils.logger import logger
-from config.settings import ANTHROPIC_API_KEY
+from app.models.base import BaseModel
+from app.core.task import Task
+from app.core.response import ModelResponse
+from app.utils.retry import retry_on_failure
+from app.utils.logger import logger
+from app.config.settings import ANTHROPIC_API_KEY
 
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 

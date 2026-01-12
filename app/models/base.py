@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from core.task import Task
-from core.response import ModelResponse
+from app.core.task import Task
+from app.core.response import ModelResponse
 
 class BaseModel(ABC):
     """

@@ -1,0 +1,30 @@
+PHASE 6 — OBSERVABILITY & AUDITABILITY
+
+Goal:
+Add visibility into system behavior through metrics, traces, and a monitoring UI.
+
+What is included:
+- Metrics tracking (total requests, per-model usage, failures)
+- Execution traces with request-level details
+- API endpoints for observability data
+- Frontend dashboard for real-time monitoring
+
+Core Files:
+- app/observability/metrics.py
+- app/observability/trace_store.py
+- app/router/model_router.py
+- app/api/server.py
+- frontend/index.html
+
+Endpoints:
+- POST /execute
+- GET /metrics
+- GET /traces
+
+Important Notes:
+- Metrics and traces work even if all models fail
+- Failures are expected and observable
+- Model availability is not required to complete this phase
+
+Status:
+PHASE 6 COMPLETE

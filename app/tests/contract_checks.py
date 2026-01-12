@@ -1,6 +1,6 @@
-from core.task import Task
-from core.decision import PolicyDecision
-from core.response import ModelResponse
+from app.core.task import Task
+from app.core.decision import PolicyDecision
+from app.core.response import ModelResponse
 
 def sanity_check():
     task = Task(
