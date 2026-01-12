@@ -1,130 +1,87 @@
 import uuid
-from app.reliability.model_guard import ModelGuard
 from app.models.mock_model import MockModel
-from app.utils.logger import logger
-
-from app.models.openai_model import OpenAIModel
-from app.models.gemini_model import GeminiModel
-from app.models.claude_model import ClaudeModel
-from app.models.mistral_model import MistralModel
-
-from app.observability.trace_store import start_trace, add_trace_step
+from app.reliability.retry_policy import RetryPolicy
+from app.reliability.model_health import get_circuit
 from app.observability.metrics import record_request
-from app.observability.audit_logger import log_audit
+from app.observability.trace_store import start_trace, add_trace_step
+from app.utils.logger import logger
 
 
 class ModelRouter:
     def __init__(self):
-        self.guard = ModelGuard()
+        self.models = []
+        self.retry_policy = RetryPolicy()
+        self.mock = MockModel()
 
-        self.models = {
-            "openai": OpenAIModel(),
-            "gemini": GeminiModel(),
-            "claude": ClaudeModel(),
-            "mistral": MistralModel(),
-        }
+    def register(self, model):
+        self.models.append(model)
 
-        self.mock = MockModel(name="mock-fallback")
-
-    def execute(self, task, decision):
-        request_id = str(uuid.uuid4())
-        start_trace(request_id)
+    def execute(self, task, decision=None):
+        trace_id = getattr(task, "id", str(uuid.uuid4()))
+        start_trace(trace_id)
 
         attempted = []
-        models_to_try = [decision.selected_model] + decision.fallback_chain
 
-        for model_name in models_to_try:
-            if not self.guard.is_healthy(model_name):
-                logger.warning(f"Skipping unhealthy model: {model_name}")
-                continue
+        for model in self.models:
+            breaker = get_circuit(model.name)
 
-            model = self.models.get(model_name)
-            if not model:
+            if not breaker.allow_request():
+                logger.warning(f"Circuit open, skipping {model.name}")
                 continue
 
             try:
-                logger.info(f"Attempting model: {model_name}")
-                response = model.generate(task)
+                logger.info(f"Attempting model: {model.name}")
+                output = self.retry_policy.run(
+                    lambda: model.generate(task.user_input)
+                )
 
-                self.guard.record_success(model_name)
-                record_request(model_name, success=True)
+                record_request(model.name, success=True)
+                breaker.record_success()
 
-                add_trace_step(request_id, {
-                    "model": model_name,
+                add_trace_step(trace_id, {
+                    "model": model.name,
                     "status": "success"
                 })
 
-                log_audit({
-                    "request_id": request_id,
-                    "model": model_name,
-                    "status": "success"
-                })
-
-                response.policy_trace = {
-                    "attempted_models": attempted + [model_name],
-                    "final_model": model_name,
-                    "reason": decision.reason
-                }
-
-                return response
+                return self._response(
+                    model=model.name,
+                    content=output,
+                    attempted=attempted
+                )
 
             except Exception as e:
-                logger.error(f"Model {model_name} failed: {e}")
-                attempted.append(model_name)
+                logger.error(f"Model {model.name} failed: {e}")
 
-                self.guard.record_failure(model_name)
-                record_request(model_name, success=False)
+                breaker.record_failure()
+                record_request(model.name, success=False)
 
-                add_trace_step(request_id, {
-                    "model": model_name,
+                attempted.append(model.name)
+                add_trace_step(trace_id, {
+                    "model": model.name,
                     "status": "failed",
                     "error": str(e)
                 })
 
-        # 🔥 FINAL GUARANTEED FALLBACK — mock is last guaranteed success
-        logger.warning("All real models failed — using mock fallback")
+        # Fallback
+        add_trace_step(trace_id, {
+            "model": "mock",
+            "status": "fallback"
+        })
 
-        from app.core.response import ModelResponse
+        return self._response(
+            model="mock",
+            content=self.mock.generate(task.user_input),
+            attempted=attempted,
+            fallback=True
+        )
 
-        try:
-            response = self.mock.generate(task)
-            record_request("mock", success=True)
-
-            add_trace_step(request_id, {
-                "model": "mock",
-                "status": "fallback"
-            })
-
-            response.policy_trace = {
+    def _response(self, model, content, attempted, fallback=False):
+        return type("Response", (), {
+            "model_used": model,
+            "content": content,
+            "policy_trace": {
                 "attempted_models": attempted,
-                "final_model": "mock",
-                "reason": "all_models_failed"
+                "final_model": model,
+                "reason": "all models failed" if fallback else "success"
             }
-
-            return response
-
-        except Exception as e:
-            # Ensure we never raise from the fallback — return a safe response
-            logger.error(f"Mock fallback failed unexpectedly: {e}")
-            record_request("mock", success=False)
-
-            add_trace_step(request_id, {
-                "model": "mock",
-                "status": "fallback",
-                "error": str(e)
-            })
-
-            # Construct a minimal safe ModelResponse and return it — do not raise
-            safe_response = ModelResponse(
-                content="Mock fallback response (safe) — system recovered.",
-                model_used="mock",
-                tokens_used=0,
-                cost=0.0,
-                policy_trace={
-                    "attempted_models": attempted,
-                    "final_model": "mock",
-                    "reason": "mock_failed"
-                }
-            )
-
-            return safe_response
+        })()
