@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.core.task import Task
@@ -8,6 +10,17 @@ from app.observability.trace_store import get_traces
 from app.observability.metrics import get_metrics
 
 app = FastAPI(title="Enterprise GenAI Router")
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Serve UI
+app.mount("/ui", StaticFiles(directory="frontend", html=True), name="ui")
 
 policy_engine = PolicyEngine()
 router = ModelRouter()
@@ -39,6 +52,14 @@ def execute_task(req: ExecuteRequest):
         "output": response.content,
         "policy_trace": response.policy_trace
     }
+
+
+@app.get("/execute")
+def execute_get_guard():
+    raise HTTPException(
+        status_code=405,
+        detail="Use POST /execute with JSON body"
+    )
 
 
 @app.get("/metrics")

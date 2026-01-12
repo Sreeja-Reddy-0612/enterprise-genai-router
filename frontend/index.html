@@ -2,31 +2,34 @@
 <html>
 <head>
   <title>GenAI Router Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
 </head>
-<body>
+
+<body onload="refresh()">
   <h1>Enterprise GenAI Router — Observability</h1>
 
-  
- <script>
-async function refresh() {
-  const metrics = await fetch("http://127.0.0.1:8000/metrics").then(r => r.json());
-  const traces = await fetch("http://127.0.0.1:8000/traces").then(r => r.json());
-
-  document.getElementById("metrics").innerText =
-    JSON.stringify(metrics, null, 2);
-
-  document.getElementById("traces").innerText =
-    JSON.stringify(traces, null, 2);
-}
-
-setInterval(refresh, 2000);
-</script>
-<h2>Metrics</h2>
-  <pre id="metrics"></pre>
+  <h2>Metrics</h2>
+  <pre id="metrics">Loading...</pre>
 
   <h2>Execution Traces</h2>
-  <pre id="traces"></pre>
+  <pre id="traces">Loading...</pre>
 
+  <script>
+    async function refresh() {
+      const metrics = await fetch("/metrics").then(r => r.json());
+      const traces = await fetch("/traces").then(r => r.json());
+
+      document.getElementById("metrics").innerText =
+        JSON.stringify(metrics, null, 2);
+
+      document.getElementById("traces").innerText =
+        JSON.stringify(traces, null, 2);
+    }
+
+    setInterval(refresh, 2000);
+  </script>
 </body>
 </html>
