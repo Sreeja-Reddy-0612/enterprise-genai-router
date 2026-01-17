@@ -14,6 +14,8 @@ class ModelRouter:
         self.mock = MockModel()
 
     def register(self, model):
+        if not hasattr(model, "generate"):
+            raise TypeError("Model must implement generate()")
         self.models.append(model)
 
     def execute(self, task, decision=None):

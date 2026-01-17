@@ -8,6 +8,7 @@ from app.policy.policy_engine import PolicyEngine
 from app.router.model_router import ModelRouter
 from app.observability.trace_store import get_traces
 from app.observability.metrics import get_metrics
+from app.reliability.test_harness import run_reliability_scenarios
 
 app = FastAPI(title="Enterprise GenAI Router")
 
@@ -71,3 +72,6 @@ def metrics():
 @app.get("/traces")
 def traces():
     return get_traces()
+
+
+print(run_reliability_scenarios())
