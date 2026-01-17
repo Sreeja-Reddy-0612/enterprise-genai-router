@@ -1,12 +1,12 @@
 # Enterprise GenAI Router
 
-Enterprise-grade GenAI control plane that intelligently routes requests
-across multiple LLM providers with policy enforcement, reliability guarantees,
+Enterprise-grade GenAI control plane that intelligently routes requests  
+across multiple LLM providers with policy enforcement, reliability guarantees,  
 and full execution observability.
 
----
 
-##  Problem Statement
+
+## Problem Statement
 
 Modern GenAI applications increasingly rely on **multiple LLM providers**
 (OpenAI, Gemini, Claude, Mistral, etc.) to balance cost, performance,
@@ -14,20 +14,20 @@ reliability, and compliance.
 
 However, production systems face several challenges:
 
-- LLMs are **unreliable by nature** (timeouts, rate limits, partial outages)
-- Model selection logic is often **hard-coded and opaque**
+- LLMs are unreliable by nature (timeouts, rate limits, partial outages)
+- Model selection logic is often hard-coded and opaque
 - Failures are poorly handled, leading to degraded user experience
 - Observability into model behavior is minimal or nonexistent
-- Explaining *why* a particular model was used is difficult
+- Explaining why a particular model was used is difficult
 
-As GenAI systems move into **enterprise and regulated environments**,
+As GenAI systems move into enterprise and regulated environments,
 these limitations become unacceptable.
 
----
 
-## ✅ Solution Overview
 
-**Enterprise GenAI Router** is a reliability-first GenAI execution platform that:
+## Solution Overview
+
+Enterprise GenAI Router is a reliability-first GenAI execution platform that:
 
 - routes requests across multiple LLM providers
 - enforces policy-based constraints (risk, budget, sensitivity)
@@ -39,9 +39,9 @@ these limitations become unacceptable.
 The system behaves like an **AI control plane**, not a chatbot,
 focusing on execution correctness, transparency, and resilience.
 
----
 
-##  Intended Use Cases
+
+## Intended Use Cases
 
 - Enterprise GenAI platforms
 - Internal AI tooling teams
@@ -49,9 +49,9 @@ focusing on execution correctness, transparency, and resilience.
 - High-availability LLM-backed services
 - Multi-model cost and reliability optimization systems
 
----
 
-##  System Architecture
+
+## System Architecture
 
 ```text
 Client / UI
@@ -71,55 +71,46 @@ Model Adapters
     ↓
 Observability Layer
 (Metrics | Traces | Logs)
+```
+
 
 
 ## Key Features
 
-Multi-LLM routing with pluggable adapters
+- Multi-LLM routing with pluggable adapters
+- Policy-driven model selection
+- Retry and circuit breaker reliability layer
+- Deterministic mock fallback for failure scenarios
+- Full execution tracing per request
+- Aggregated metrics by model and outcome
+- Lightweight frontend observability dashboard
+- Enterprise-safe API contracts
 
-Policy-driven model selection
 
-Retry and circuit breaker reliability layer
-
-Deterministic mock fallback for failure scenarios
-
-Full execution tracing per request
-
-Aggregated metrics by model and outcome
-
-Lightweight frontend observability dashboard
-
-Enterprise-safe API contracts
 
 ## Tech Stack
 
-Python
+- Python
+- FastAPI
+- Pydantic
+- REST APIs (LLM providers)
+- In-memory observability stores
+- HTML + JavaScript (dashboard)
 
-FastAPI
 
-Pydantic
-
-REST APIs (LLM providers)
-
-In-memory observability stores
-
-HTML + JavaScript (dashboard)
 
 ## How It Works (High Level)
 
-Client submits a task to /execute
+1. Client submits a task to `/execute`
+2. Policy engine evaluates risk, budget, and sensitivity
+3. Router selects candidate models
+4. Reliability layer enforces retries and circuit breakers
+5. Observability captures metrics and execution traces
+6. Fallback model ensures graceful degradation if needed
 
-Policy engine evaluates risk, budget, and sensitivity
 
-Router selects candidate models
 
-Reliability layer enforces retries and circuit breakers
-
-Observability captures metrics and execution traces
-
-Fallback model ensures graceful degradation if needed
-
-📊 Example Execution Trace
+## Example Execution Trace
 
 ```json
 {
@@ -131,34 +122,32 @@ Fallback model ensures graceful degradation if needed
 
 Metrics and traces reflect actual runtime behavior, not mocked logs.
 
+
+
 ## Non-Goals
 
-Not a chatbot UI
-
-Not a prompt engineering framework
-
-Not a model fine-tuning system
-
-Not a replacement for LangChain or LlamaIndex
+- Not a chatbot UI
+- Not a prompt engineering framework
+- Not a model fine-tuning system
+- Not a replacement for LangChain or LlamaIndex
 
 This project focuses strictly on execution control, reliability,
 and observability, not application-level UX.
 
+
+
 ## Design Principles
 
-Reliability over raw performance
+- Reliability over raw performance
+- Failures are expected, not exceptional
+- No silent model degradation
+- Deterministic behavior over randomness
+- Observability before optimization
+- Clear system boundaries
 
-Failures are expected, not exceptional
 
-No silent model degradation
 
-Deterministic behavior over randomness
-
-Observability before optimization
-
-Clear system boundaries
-
-## ▶️ How to Run Locally
+## How to Run Locally
 
 ```bash
 git clone https://github.com/Sreeja-Reddy-0612/enterprise-genai-router
@@ -171,36 +160,60 @@ pip install -r requirements.txt
 uvicorn app.api.server:app --reload
 ```
 
+
+
 ## Access
 
-API Docs: http://127.0.0.1:8000/docs
+- API Docs: http://127.0.0.1:8000/docs  
+- Metrics: http://127.0.0.1:8000/metrics  
+- Traces: http://127.0.0.1:8000/traces  
+- Dashboard: http://127.0.0.1:8000/ui/index.html  
 
-Metrics: http://127.0.0.1:8000/metrics
 
-Traces: http://127.0.0.1:8000/traces
-
-Dashboard: http://127.0.0.1:8000/ui/index.html
 
 ## Future Enhancements
 
-Persistent metrics and trace storage
+- Persistent metrics and trace storage
+- Distributed tracing support
+- Policy versioning and audit exports
+- Cost-aware routing optimization
+- Role-based access control
+- Cloud-native deployment (Kubernetes)
 
-Distributed tracing support
 
-Policy versioning and audit exports
 
-Cost-aware routing optimization
+##  Contribution
 
-Role-based access control
+Contributions are welcome and appreciated.
 
-Cloud-native deployment (Kubernetes)
+If you would like to improve this project or add new features, please follow these steps:
 
-##  Author
+1. Fork the repository  
+2. Create a new branch  
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Make your changes  
+4. Commit your changes  
+   ```bash
+   git commit -m "Add: meaningful description of change"
+   ```
+5. Push the branch to your fork  
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+6. Open a Pull Request (PR) with a clear description
 
-Sreeja Reddy  
+Please ensure your changes follow the existing architecture and coding standards.
+
+
+
+
+## Author
+
+**Sreeja Reddy**  
 AI Engineer focused on LLM systems, RAG pipelines,  
 enterprise GenAI reliability, and AI infrastructure design.
 
-GitHub: https://github.com/Sreeja-Reddy-0612
-
+GitHub: https://github.com/Sreeja-Reddy-0612  
 LinkedIn: https://www.linkedin.com/in/sreeja-reddy-5ab708288/
